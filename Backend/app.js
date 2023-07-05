@@ -15,7 +15,7 @@ const router = express.Router();
 
 app.use(cors());
 
-require('./models/db');
+require('./db');
 
 app.use("/api/v1", router);
 

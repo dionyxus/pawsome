@@ -38,6 +38,9 @@ const Profile = () => {
         {activeTab === 2 && (
           <View>
             <Text>Content of Tab 2</Text>
+
+
+            
           </View>
         )}
       </View>

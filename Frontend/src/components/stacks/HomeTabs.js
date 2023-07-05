@@ -8,13 +8,14 @@ const Tab = createBottomTabNavigator();
 const HomeTabs = () => {
   return (
     <Tab.Navigator>
+    <Tab.Screen name="Dashboard" component={Dashboard} />
       <Tab.Screen
         name="PetHome"
         component={PetComponent}
         options={{ headerShown: false }}
       />
       <Tab.Screen name="Leaderboard" component={Leaderboard} />
-      <Tab.Screen name="Dashboard" component={Dashboard} />
+     
     </Tab.Navigator>
   );
 };
