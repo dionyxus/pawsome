@@ -47,7 +47,7 @@ const LoginScreen = () => {
   const saveUserDataToMongoDB = async (email, uid) => {
     try {
       // Make HTTP POST request to your API endpoint
-      const response = await fetch('http://localhost:8080/users', {
+      const response = await fetch('https://18.189.84.93:8080/users', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -64,9 +64,9 @@ const Profile = () => {
                   </View>
                 </View>
               </View>
-              <MoodComponent />
+             {/* <MoodComponent />
               <Text>----------------------------</Text>
-              <HealthComponent />
+              <HealthComponent /> */}
             </View>
           </View>
         )}
@@ -95,9 +95,9 @@ const Profile = () => {
              
               </View>
             </View>
-           <PointsComponent />
+         {/*  <PointsComponent />
             <Text>----------------------------</Text>
-            <RankComponent />
+        <RankComponent /> */}
           </View>
           </View>
         )}

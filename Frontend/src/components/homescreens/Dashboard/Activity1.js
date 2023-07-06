@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Legend } from 'recharts';
 
 const data = {
@@ -38,47 +38,29 @@ const colors = {
 };
 
 const Dropdown = ({ label, value, options, onChange }) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleOpen = () => {
-    setIsOpen(true);
-  };
-
- const handleClose = () => {
-    setIsOpen(false);
-  };
-
-  const handleOptionSelect = (option) => {
-    onChange(option);
-    setIsOpen(false);
+  const handleOptionSelect = (selectedValue) => {
+    onChange(selectedValue);
   };
 
   return (
     <View style={styles.dropdownContainer}>
       <Text style={styles.dropdownLabel}>{label}</Text>
-      <TouchableOpacity style={styles.dropdown} onPress={handleOpen}>
-        <Text>{value}</Text>
-      </TouchableOpacity>
-      <Modal visible={isOpen} transparent animationType="fade">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            {options.map((option) => (
-              <TouchableOpacity
-                key={option}
-                style={styles.option}
-                onPress={() => handleOptionSelect(option)}
-              >
-                <Text>{option}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </Modal>
+      <View style={styles.dropdown}>
+        {options.map((option) => (
+          <Text
+            key={option}
+            style={styles.dropdownOption}
+            onPress={() => handleOptionSelect(option)}
+          >
+            {option}
+          </Text>
+        ))}
+      </View>
     </View>
   );
 };
 
-const ExercisesCompletedComponent = () => {
+const ExercisesCompletedComponent1 = () => {
   const [xAxis, setXAxis] = useState('weekly');
   const [selectedArea, setSelectedArea] = useState('all');
 
@@ -101,7 +83,13 @@ const ExercisesCompletedComponent = () => {
     }
 
     return areasToShow.map((area) => (
-      <Area key={area} type="monotone" dataKey={area} fill={colors[area]} stroke={colors[area]} />
+      <Area
+        key={area}
+        type="monotone"
+        dataKey={area}
+        fill={colors[area]}
+        stroke={colors[area]}
+      />
     ));
   };
 
@@ -117,7 +105,7 @@ const ExercisesCompletedComponent = () => {
         />
         <Dropdown
           label="Time Range"
-          value={xAxis === 'weekly' ? 'This Week' : 'This Month'}
+          value={xAxis}
           options={['weekly', 'monthly']}
           onChange={handleXAxisChange}
         />
@@ -167,30 +155,18 @@ const styles = StyleSheet.create({
     padding: 8,
     width: 150,
   },
-  modalContainer: {
+  dropdownOption: {
+    padding: 4,
+    fontSize: 16,
+  },
+  chartContainer: {
     flex: 1,
+    width: 'auto',
     justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor:'#00000080',
-    },
-    modalContent: {
-      backgroundColor: '#fff',
-      padding: 16,
-      borderRadius: 8,
-      width: 150,
-    },
-    option: {
-      paddingVertical: 8,
-      paddingHorizontal: 16,
-    },
-    chartContainer: {
-      flex: 1,
-      width: 'auto',
-      justifyContent: 'center',
-    },
-    options: {
-      flexDirection: 'row',
-    },
-  });
+  },
+  options: {
+    flexDirection: 'row',
+  },
+});
 
-export default ExercisesCompletedComponent;
+export default ExercisesCompletedComponent1;
