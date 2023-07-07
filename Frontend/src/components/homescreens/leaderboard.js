@@ -10,21 +10,38 @@ import {
   Alert,
   Image,
   TextInput,
+  Modal,
 } from 'react-native';
+import ProgressBar from 'react-native-progress/Bar';
 import { auth } from '../../config/firebase';
 import axios from 'axios';
+import { BACKEND_API } from '../../config/backendlink';
+
 
 const Leaderboard = () => {
   const navigation = useNavigation();
 
   //-----------Variable for switch between 2 tabs---------------------
   const [activeTab, setActiveTab] = useState(1);
+  const [modalVisible, setModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   //--------------Tab 1 Search Functionality-------------------
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
+
+  const [moodProgress, setMoodProgress] = useState(0.3);
+  const [healthProgress, setHealthProgress] = useState(0.8);
+
+  useEffect(() => {
+    fetchCurrentUserId();
+    fetchUsers();
+  }, []);
+
+ 
+
+  
 
   const handleSearchQueryChange = (query) => {
     setSearchQuery(query);
@@ -56,15 +73,13 @@ const Leaderboard = () => {
 
   const [currentUserId, setCurrentUserId] = useState('');
 
-  useEffect(() => {
-    fetchCurrentUserId();
-  }, []);
+ 
 
   const fetchCurrentUserId = async () => {
     try {
       const currentUser = auth.currentUser;
       if (currentUser) {
-        const response = await fetch('http://localhost:8080/users');
+        const response = await fetch(`${BACKEND_API}/users`);
         const data = await response.json();
         const foundUser = data.find((user) => user.uid === currentUser.uid);
         if (foundUser) {
@@ -83,13 +98,11 @@ const Leaderboard = () => {
   // --------------------Fetch all users from the backend----------------------//
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:8080/users');
+      const response = await fetch(`${BACKEND_API}/users`);
       const data = await response.json();
       setUsers(data);
       setFilteredUsers(data);
@@ -102,6 +115,7 @@ const Leaderboard = () => {
   const renderUserItem = ({ item, index }) => {
     const handleUserPress = () => {
       setSelectedUser(item);
+      setModalVisible(true);
     };
 
     const isEmailMatch = item.email
@@ -119,12 +133,11 @@ const Leaderboard = () => {
           source={{ uri: 'https://picsum.photos/536/354' }}
           style={styles.profileImage}
         />
-       
+
         <View style={styles.userInfoContainer}>
-       
-        <Text style={styles.userName}>{item.email}</Text>
-        <Text style={styles.score}>Scores - 20 {item.score}</Text>
-      </View>
+          <Text style={styles.userName}>{item.email}</Text>
+          <Text style={styles.score}>Scores - 20 {item.score}</Text>
+        </View>
         <Button title={'View Details'} onPress={handleUserPress} />
       </View>
     );
@@ -139,13 +152,14 @@ const Leaderboard = () => {
 
   const handleUserPress = (user) => {
     setSelectedUser(user);
+    setModalVisible(true);
   };
 
   //------------------------------------Add friend functionality---------------------------------
 
   const handleAddFriend = async (selectedUser) => {
     try {
-      const response = await fetch('http://localhost:8080/user-lists', {
+      const response = await fetch(`${BACKEND_API}/user-lists`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -156,10 +170,13 @@ const Leaderboard = () => {
         }),
       });
 
-      if (response.ok) {
+      if (response.status === 200) {
         alert('User added as a friend successfully');
-        Alert('User added as a friend successfully');
-        console.log('User added as a friend successfully');
+        setSelectedUser(null);
+        setApiSuccess((prev) => !prev);
+        setModalVisible(false);
+        
+       
       } else {
         console.error('Failed to add user as a friend');
       }
@@ -175,7 +192,7 @@ const Leaderboard = () => {
     const fetchUserList = async () => {
       try {
         const response = await fetch(
-          `http://localhost:8080/user-lists/${currentUserId}`,
+          `${BACKEND_API}/user-lists/${currentUserId}`,
         );
         const data = await response.json();
         const { userList } = data;
@@ -195,13 +212,15 @@ const Leaderboard = () => {
   const handleRemoveFriend = async (selectedUser) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8080/userlist/${currentUserId}/registeredUsers/${selectedUser._id}`,
+        `${BACKEND_API}/userlist/${currentUserId}/registeredUsers/${selectedUser._id}`,
       );
 
       if (response.status === 200) {
         console.log('User removed as a friend successfully');
         alert('User removed as a friend successfully');
         setSelectedUser(null);
+        setApiSuccess((prev) => !prev);
+        setModalVisible(false);
       } else {
         console.error('Failed to remove user as a friend');
       }
@@ -259,23 +278,44 @@ const Leaderboard = () => {
               keyExtractor={(item) => item._id}
               contentContainerStyle={styles.listContainer}
             />
-
-            {selectedUser && (
-              <View style={styles.userDetailsContainer}>
-                <Text style={styles.userDetails}>{selectedUser.email}</Text>
-                <Text style={styles.userDetails}>{selectedUser._id}</Text>
-                <Text style={styles.userDetails}>Scores - 20 {selectedUser.score}</Text>
-                <Image
-                  source={{ uri: 'https://picsum.photos/536/354' }} // Replace with the actual image URL
-                  style={styles.profileBigImage}
-                />
-                <Text> </Text>
-                <Button
-                  title="Add Friend"
-                  onPress={() => handleAddFriend(selectedUser)}
-                />
+            <Modal
+              visible={modalVisible}
+              onRequestClose={() => setModalVisible(false)}
+              transparent
+              animationType="fade"
+            >
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  {selectedUser && (
+                    <View style={styles.userDetailsContainer}>
+                      <Text style={styles.userDetails}>
+                        {selectedUser.email}
+                      </Text>
+                      <Text style={styles.userDetails}>{selectedUser._id}</Text>
+                      <Text style={styles.userDetails}>
+                        Scores - 20 {selectedUser.score}
+                      </Text>
+                      <Image
+                        source={{ uri: 'https://picsum.photos/536/354' }} // Replace with the actual image URL
+                        // source={require('./petimage.JPG')}
+                        style={styles.profileBigImage}
+                      />
+                      <Text> </Text>
+                      <View style={styles.modalButton}>
+                      <Button
+                        title="Add Friend"
+                        onPress={() => handleAddFriend(selectedUser)}
+                      />
+                      <Button
+                        title="Close Tab"
+                        onPress={() => setModalVisible(false)}
+                      />
+                      </View>
+                    </View>
+                  )}
+                </View>
               </View>
-            )}
+            </Modal>
           </View>
         )}
 
@@ -292,38 +332,69 @@ const Leaderboard = () => {
               .map((user, index) => (
                 <View style={styles.listItem} key={user._id}>
                   <Text style={styles.number}>{index + 1}.</Text>
+                  
                   <Image
                     source={{ uri: 'https://picsum.photos/536/354' }} // Replace with the actual image URL
                     style={styles.profileImage}
                   />
-                 
+
                   <View style={styles.userInfoContainer}>
-       
-                  <Text style={styles.userName}>{user.email}</Text>
-                  <Text style={styles.score}>Scores - 20 {user.score}</Text>
-                </View>
+                    <Text style={styles.userName}>{user.email}</Text>
+                    <Text style={styles.score}>Scores - 20 {user.score}</Text>
+                  </View>
+                  <View style={styles.itemContentContainer}>
                   <Button
                     title={'View Details'}
                     onPress={() => handleUserPress(user)}
                   />
+                  </View>
                 </View>
               ))}
-            {selectedUser && (
-              <View style={styles.userDetailsContainer}>
-                <Text style={styles.userDetails}>{selectedUser.email}</Text>
-                <Text style={styles.userDetails}>{selectedUser._id}</Text>
-                <Text style={styles.userDetails}>Scores - 20 {selectedUser.score}</Text>
-                <Image
-                  source={{ uri: 'https://picsum.photos/536/354' }} // Replace with the actual image URL
-                  style={styles.profileBigImage}
-                />
-                <Text> </Text>
-                <Button
-                  title="Remove Friend"
-                  onPress={() => handleRemoveFriend(selectedUser)}
-                />
+
+            <Modal
+              visible={modalVisible}
+              onRequestClose={() => setModalVisible(false)}
+              transparent
+              animationType="fade"
+            >
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  {selectedUser && (
+                    <View style={styles.userDetailsContainer}>
+                      <Text style={styles.userDetails}>
+                        {selectedUser.email}
+                      </Text>
+                   
+                     
+                      <Image
+                      source={{ uri: 'https://picsum.photos/536/354' }}
+                      // source={require('./pet2image.JPG')} 
+                        style={styles.profileBigImage}
+                      />
+                      <Text style={styles.rankDetails}> #3 </Text>
+                      <View style={styles.modelBars}>
+                      <Text style={styles.label}>Pet's Mood:</Text>
+      <ProgressBar progress={moodProgress} width={200} height={20} />
+
+      <Text style={styles.label}>Pet's Health:</Text>
+      <ProgressBar progress={healthProgress} width={200} height={20} />
+      <Text></Text>
+      </View>
+      <View style={styles.modalButton}>
+                      <Button 
+                        title="Remove Friend"
+                        onPress={() => handleRemoveFriend(selectedUser)}
+                      />
+                      <Button 
+                        title="Close Tab"
+                        onPress={() => setModalVisible(false)}
+                      />
+                      </View>
+                    </View>
+                  )}
+                </View>
               </View>
-            )}
+            </Modal>
           </View>
         )}
       </View>
@@ -336,6 +407,11 @@ const Leaderboard = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  modalButton: {
+   borderRadius: 5,
+   gap: 5, 
+   marginTop: 15,
   },
   tabContainer: {
     flexDirection: 'row',
@@ -375,6 +451,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginRight: 10,
   },
+  itemContentContainer: {
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  modelBars: {
+    marginBottom: 15,
+  },
   userName: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -388,14 +471,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  rankDetails: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    marginTop: 20,
+  },
   profileImage: {
     width: 30,
     height: 30,
     borderRadius: 25,
   },
   profileBigImage: {
-    width: 70,
-    height: 70,
+    width: 170,
+    height: 170,
     borderRadius: 45,
   },
   searchContainer: {
@@ -423,7 +512,19 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   userInfoContainer: {
-    marginHorizontal: 10, 
+    marginHorizontal: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#00000080',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    width: 350,
   },
 });
 
