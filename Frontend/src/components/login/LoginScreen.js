@@ -2,8 +2,14 @@ import { useNavigation } from '@react-navigation/core'
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, StyleSheet, Text, TextInput, Alert, Image, TouchableOpacity, View } from 'react-native'
 import { auth } from '../../config/firebase'
+
+import * as Google from 'expo-auth-session/providers/google'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
 //import styles from '../style'
 // import TwoTabsComponent from '../homescreens/leaderboard'
+
+// ios clientID 213578312471-660fa2j0qm9e6f01uk0o48ceajpgr11j.apps.googleusercontent.com
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('amber@gmail.com')
@@ -11,7 +17,41 @@ const LoginScreen = () => {
 
   const navigation = useNavigation()
 
+  const [userInfo, setUserInfo] = React.useState(null);
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    iosClientId: "213578312471-660fa2j0qm9e6f01uk0o48ceajpgr11j.apps.googleusercontent.com",
+  })
+
+  async function handleSignInWithGoogle() {
+    const user = await AsyncStorage.getItem("@user");
+    if (!user) {
+      if (response ?.type === "success") {
+        await getUserInfo(response.authentication.accessToken);
+      }
+    } else {
+      setUserInfo(JSON.parse(user));
+    }
+  }
+
+  const getUserInfo = async (token) => {
+    if (!token) return;
+    try {
+      const response = await fetch(
+        "https://www.googleapis.com/userinfo/v2/me",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const user = await response.json();
+      await AsyncStorage.setItem("@user", JSON.stringify(user));
+      setUserInfo(user);
+    } catch (error) {
+    }
+  };
+
   useEffect(() => {
+    handleSignInWithGoogle();
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
         // if (user.email === "sai@gmail.com") {
@@ -25,7 +65,7 @@ const LoginScreen = () => {
     })
 
     return unsubscribe
-  }, [])
+  }, [response])
 
   // const handleSignUp = () => {
   //   auth
@@ -207,7 +247,7 @@ const LoginScreen = () => {
 
         <View style={styles.googleButtonContainer}>
           <TouchableOpacity
-
+            onPress={() => { promptAsync() }}
             style={styles.googleButton}
           >
             <Image style={styles.google} source={require('../../../assets/google.jpeg')} />
@@ -228,6 +268,11 @@ const LoginScreen = () => {
 
         </TouchableOpacity>
 
+        <Button
+          title="remove local store"
+          onPress={async () => await AsyncStorage.removeItem("@user")}
+        />
+        <Text>{JSON.stringify(userInfo, null, 2)}</Text>
 
       </View>
     </KeyboardAvoidingView>
