@@ -14,12 +14,13 @@ const LoginScreen = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
-        if (user.email === "sai@gmail.com") {
-          console.log('Go to Left Pet Comp');
-          navigation.navigate("Home", { selectedPet: 0, petName: "LEFT" });
-        } else {
-          navigation.navigate("PetSelect");
-        }
+        // if (user.email === "sai@gmail.com") {
+        //   console.log('Go to Left Pet Comp');
+        //   navigation.navigate("Home", { selectedPet: 0, petName: "LEFT" });
+        // } else {
+        //   navigation.navigate("PetSelect");
+        // }
+        navigation.navigate("PetSelect");
       }
     })
 
