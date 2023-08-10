@@ -277,7 +277,7 @@ const ActivityProgress = ({ route, navigation }) => {
 
         <View style={styles.centeredView}>
           <Modal
-            animationType="slide"
+            animationType="fade"
             transparent={true}
             visible={modalVisible}
             onRequestClose={() => {
@@ -482,6 +482,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     //backgroundColor: '#00000010',
   },
   modalView: {

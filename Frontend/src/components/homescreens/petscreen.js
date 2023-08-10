@@ -289,7 +289,7 @@ const PetComponent = ({ route, navigation }) => {
 
           <View style={styles.centeredView}>
             <Modal
-              animationType="slide"
+              animationType="fade"
               transparent={true}
               visible={modalVisible1}
               onRequestClose={() => {
@@ -428,7 +428,7 @@ const PetComponent = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   inventoryContainer: {
-    marginTop: 5,
+    marginTop: 30,
     width: 320,
     borderRadius: 4,
     shadowColor: 'black',
@@ -592,7 +592,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 22,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalView: {
     margin: 20,

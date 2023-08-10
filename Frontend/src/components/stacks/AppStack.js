@@ -12,6 +12,8 @@ import ActivitySelection from '../activityscreens/ActivitySelection';
 import ActivityProgress from '../activityscreens/ActivityProgress';
 import styles from '../style';
 import { Activity } from '../../data/ActivityObject';
+import {TouchableOpacity,Text} from 'react-native';
+import { HeaderBackButton } from 'react-navigation-stack';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,7 +22,6 @@ const AppStack = () => {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{
         headerTitleAlign: 'center', // Align header title to center
-        headerLeft: null, // Remove the back arrow
       }}>
         <Stack.Screen
           options={{ headerShown: false }}
@@ -28,14 +29,20 @@ const AppStack = () => {
           component={LoginScreen}
         />
 
-        <Stack.Screen name="Leaderboard" options={{headerTitle: "Leaderboard",headerShown: true, headerBackTitleVisible: false}} component={Leaderboard} />
+        <Stack.Screen name="Leaderboard" options={{ headerTitle: "Leaderboard", headerShown: true, headerBackTitleVisible: false }} component={Leaderboard} />
 
-        <Stack.Screen name="PetSelect" component={PetSelectScreen} options={{ headerTitle: "Select Your Pet",headerShown: true,headerBackTitleVisible: false}}/>
-        <Stack.Screen name="ForgotPassword" component={RecoverPassword} options={{headerTitle: "",headerShown: true,headerBackTitleVisible: false}} 
-  />
-        <Stack.Screen name="SetPassword" component={SetPassword} options={{headerTitle: "",headerShown: true,headerBackTitleVisible: false}}  />
-        <Stack.Screen name="CreateAccount" component={CreateAccount} options={{headerTitle: "",headerShown: true,headerBackTitleVisible: false}}/>
-       
+        <Stack.Screen name="PetSelect" component={PetSelectScreen} options={{
+          headerTitle: "Select Your Pet", headerShown: true, headerLeft: (props) => (
+            <HeaderBackButton
+              labelVisible={false}
+            />
+          )
+        }} />
+        <Stack.Screen name="ForgotPassword" component={RecoverPassword} options={{ headerTitle: "", headerShown: true, headerBackTitleVisible: false }}
+        />
+        <Stack.Screen name="SetPassword" component={SetPassword} options={{ headerTitle: "", headerShown: true, headerBackTitleVisible: false }} />
+        <Stack.Screen name="CreateAccount" component={CreateAccount} options={{ headerTitle: "", headerShown: true, headerBackTitleVisible: false }} />
+
         <Stack.Screen
           name="Home"
           component={HomeTabs}
@@ -47,3 +54,19 @@ const AppStack = () => {
 };
 
 export default AppStack;
+
+/*
+(
+            <TouchableOpacity>
+              <Text style={{ color: '#37298A', fontSize: 36, textAlign: 'center' }}>{'<'}</Text>
+            </TouchableOpacity>
+          )
+
+
+          , headerLeft: (props) => (
+            <HeaderBackButton
+              
+              style={{color:'grey'}}
+            />
+          )
+*/
