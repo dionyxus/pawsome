@@ -302,7 +302,7 @@ const PetComponent = ({ route, navigation }) => {
                     style={styles.image}
                     source={require("../../../assets/activityIcons/Food.png")}
                   ></Image>
-                  <Text style={styles.modalText}>You dont have enough</Text>
+                  <Text style={styles.modalText}>You dont have enough food</Text>
                   <Text style={styles.modalText}>Start an activity to earn food and take care of your pet.</Text>
 
                   <View style={{
